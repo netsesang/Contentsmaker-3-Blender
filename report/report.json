@@ -1,0 +1,90 @@
+{
+  "schemaVersion": 1,
+  "project": {
+    "no": "4-3",
+    "name": "Contentsmaker-3-Blender"
+  },
+  "generatedAt": "2026-10-27T16:51:45+09:00",
+  "state": "degraded",
+  "headline": "렌더 3편 완료 · 실패 1 · 보관 3편 (GPU)",
+  "lastError": "Blender exited with code 0",
+  "alerts": [
+    {
+      "level": "warn",
+      "code": "render-failed",
+      "text": "렌더 실패 1건 (가장 최근: shot_1793077389)",
+      "since": null
+    }
+  ],
+  "counts": {
+    "rendersCompleted": 3,
+    "rendersFailed": 1,
+    "clipsStored": 3,
+    "outputsMegabytes": 8.9
+  },
+  "usesAi": false,
+  "spend": {
+    "month": "2026-10",
+    "monthKrw": 0,
+    "basis": "measured",
+    "byProvider": {}
+  },
+  "top": [
+    {
+      "title": "shot_1793085822 · completed",
+      "url": null,
+      "at": "2026-10-27 16:23:42"
+    },
+    {
+      "title": "shot_1793079632 · completed",
+      "url": null,
+      "at": "2026-10-27 14:40:32"
+    },
+    {
+      "title": "shot_1793077464 · completed",
+      "url": null,
+      "at": "2026-10-27 14:04:24"
+    }
+  ],
+  "heartbeatHours": null,
+  "blender": {
+    "installed": true,
+    "version": "Blender 4.5.10 LTS",
+    "path": "C:\\Program Files\\Blender Foundation\\Blender 4.5\\blender.exe",
+    "gpuAccelerated": true,
+    "gpuBackend": "OPTIX"
+  },
+  "recentJobs": [
+    {
+      "jobId": "shot_1793085822",
+      "status": "completed",
+      "seconds": 1543.2,
+      "file": "shot_1793085822.mp4",
+      "at": "2026-10-27 16:23:42"
+    },
+    {
+      "jobId": "shot_1793079632",
+      "status": "completed",
+      "seconds": null,
+      "file": "shot_1793079632.mp4",
+      "at": "2026-10-27 14:40:32"
+    },
+    {
+      "jobId": "shot_1793077464",
+      "status": "completed",
+      "seconds": null,
+      "file": "shot_1793077464.mp4",
+      "at": "2026-10-27 14:04:24"
+    }
+  ],
+  "storage": {
+    "clips": 3,
+    "megabytes": 8.9,
+    "limit_clips": 40,
+    "limit_megabytes": 2048,
+    "over_limit": false,
+    "oldest_clip": "shot_1793077464.mp4",
+    "warning": null
+  },
+  "cm2Url": "http://localhost:4005"
+}

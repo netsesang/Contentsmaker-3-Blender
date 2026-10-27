@@ -1,0 +1,6 @@
+{
+  "cm2_url": "http://localhost:4005",
+  "port": 8003,
+  "storage_warn_clips": 40,
+  "storage_warn_mb": 2048
+}

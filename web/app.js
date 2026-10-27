@@ -26,16 +26,37 @@ async function checkStatus() {
   try {
     const data = await api('/api/status');
     const bl = data.blender || {};
+    const gpu = bl.gpu || {};
     if (bl.installed) {
       badge.className = 'status-badge badge-connected';
-      text.textContent = `${bl.version || 'Blender 정상 연결'} (GPU 활성)`;
+      const gpuText = gpu.accelerated === true
+        ? `${gpu.backend || 'GPU'} 가속`
+        : (gpu.accelerated === false ? 'CPU 렌더' : 'GPU 확인 중');
+      text.textContent = `${bl.version || 'Blender 정상 연결'} (${gpuText})`;
     } else {
       badge.className = 'status-badge badge-disconnected';
-      text.textContent = 'Blender 미설치 / 경로 지정 필요';
+      text.textContent = 'Blender를 찾을 수 없습니다 — 경로 지정 필요';
+      const paths = (bl.searched_paths || []).join('
+');
+      badge.title = paths ? `찾아본 자리:
+${paths}` : '';
     }
+    if (data.cm2_url) $('modalCm2Url').value = data.cm2_url;
+    showStorageWarning((data.storage || {}).warning);
   } catch (e) {
     badge.className = 'status-badge badge-disconnected';
     text.textContent = '서버 연결 실패';
+  }
+}
+
+function showStorageWarning(message) {
+  const box = $('storageWarn');
+  if (!box) return;
+  if (message) {
+    box.textContent = `⚠️ ${message}`;
+    box.classList.remove('hidden');
+  } else {
+    box.classList.add('hidden');
   }
 }
 

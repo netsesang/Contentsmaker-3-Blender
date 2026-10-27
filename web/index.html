@@ -207,6 +207,8 @@
         </div>
 
         <!-- Clips Grid -->
+        <div id="storageWarn" class="storage-warn hidden"></div>
+
         <div id="clipsGrid" class="clips-grid">
           <!-- Rendered items will be injected here -->
           <div class="empty-state" id="emptyState">
@@ -227,8 +229,9 @@
         </div>
         <div class="modal-body">
           <p class="modal-desc">
-            현재 4-2 프로젝트가 <code>http://localhost:8002</code>에서 켜져 있다면,
+            현재 4-2(TubeInsight) 프로젝트가 <code>http://localhost:4005</code>에서 켜져 있다면,
             아래 기획안 ID와 씬 번호를 지정하여 즉시 3D 클립을 장착할 수 있습니다.
+            <br>4-2는 씬 번호(1, 2, 3 …)와 thumbnail만 알아봅니다. 썸네일 칸으로 보내면 mp4 대신 썸네일 PNG가 들어갑니다.
           </p>
           <div class="form-group">
             <label>기획안 ID (Plan ID)</label>
@@ -237,17 +240,17 @@
           <div class="form-group">
             <label>장착할 슬롯 (Scene Slot)</label>
             <select id="modalSlotSelect" class="styled-select">
-              <option value="scene_1">씬 1 (Scene 1)</option>
-              <option value="scene_2">씬 2 (Scene 2)</option>
-              <option value="scene_3">씬 3 (Scene 3)</option>
-              <option value="scene_4">씬 4 (Scene 4)</option>
-              <option value="scene_5">씬 5 (Scene 5)</option>
+              <option value="1">씬 1 (Scene 1)</option>
+              <option value="2">씬 2 (Scene 2)</option>
+              <option value="3">씬 3 (Scene 3)</option>
+              <option value="4">씬 4 (Scene 4)</option>
+              <option value="5">씬 5 (Scene 5)</option>
               <option value="thumbnail">썸네일 (Thumbnail)</option>
             </select>
           </div>
           <div class="form-group">
             <label>4-2 서버 주소</label>
-            <input type="text" id="modalCm2Url" class="styled-input" value="http://localhost:8002">
+            <input type="text" id="modalCm2Url" class="styled-input" value="http://localhost:4005">
           </div>
           <input type="hidden" id="modalJobId">
         </div>

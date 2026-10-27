@@ -1,5 +1,8 @@
 import os
 import sys
+import socket
+import threading
+from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Dict, Any, Optional
 import uvicorn
@@ -9,7 +12,8 @@ from fastapi.responses import FileResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
-from blender_detector import get_blender_info, save_config, load_config
+import config
+from blender_detector import get_blender_info, save_config, load_config, detect_gpu, find_blender
 from blender_bridge import bridge, OUTPUTS_DIR
 
 app = FastAPI(title="Contentsmaker-3-Blender", description="Blender 3D Video Studio for Contentsmaker", version="1.0.0")
@@ -41,15 +45,21 @@ class ConfigRequest(BaseModel):
 class SendToCM2Request(BaseModel):
     job_id: str
     plan_id: str
-    slot: str = "scene_1"
-    cm2_url: str = "http://localhost:8002"
+    slot: str = "1"                       # 4-2 는 '1'~'N' 또는 'thumbnail' 만 받는다
+    cm2_url: Optional[str] = None         # 비우면 config.json / CM2_URL 환경변수 (기본 4005)
 
 class OpenExplorerRequest(BaseModel):
     file_path: Optional[str] = None
 
 @app.get("/api/status")
 def get_status():
-    return bridge.get_status()
+    status = bridge.get_status()
+    bridge.write_report()
+    return status
+
+@app.get("/api/report")
+def get_report():
+    return bridge.write_report()
 
 @app.post("/api/config")
 def update_config(req: ConfigRequest):
@@ -73,6 +83,7 @@ def get_jobs():
         job_id: {
             "status": data.get("status"),
             "created_at": data.get("created_at"),
+            "seconds": data.get("seconds"),
             "params": data.get("params"),
             "mp4_file": data.get("mp4_file"),
             "thumb_file": data.get("thumb_file"),
@@ -117,7 +128,39 @@ def serve_root():
         return FileResponse(index_file)
     return {"message": "Contentsmaker-3-Blender API is running."}
 
+
+@asynccontextmanager
+async def lifespan(_app: FastAPI):
+    def warm_up():
+        # GPU 가속 여부는 블렌더에게 직접 물어본다 (몇 초 걸리므로 뒤에서 한 번만).
+        path = find_blender()
+        if path:
+            detect_gpu(path)
+        bridge.write_report()
+    threading.Thread(target=warm_up, daemon=True).start()
+    yield
+    # 서버를 끄면 「쉬는 중」으로 남긴다 (98번이 멈춤으로 오해하지 않게).
+    bridge.write_report(state="idle")
+
+
+app.router.lifespan_context = lifespan
+
+
+def port_in_use(port: int, host: str = "127.0.0.1") -> bool:
+    """이미 누가 쓰고 있는지만 본다. 남의 서버는 절대 끄지 않는다."""
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.settimeout(1.0)
+        return s.connect_ex((host, port)) == 0
+
+
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 8003))
-    print(f"Starting Contentsmaker-3-Blender Studio on port {port}...")
+    port = config.get_port()
+    if port_in_use(port):
+        print(f"[멈춤] 포트 {port} 가 이미 쓰이고 있습니다.")
+        print("       이미 켜져 있는 그 서버는 끄지 않았습니다.")
+        print(f"       - 4-3 이 이미 떠 있다면 브라우저에서 http://localhost:{port} 를 열어 쓰십시오.")
+        print(f"       - 다른 프로그램이 쓰고 있다면 다른 포트로 켜십시오:  set PORT=8013 && python server.py")
+        print("       - 또는 config.json 의 \"port\" 값을 바꾸십시오.")
+        sys.exit(1)
+    print(f"Starting Contentsmaker-3-Blender Studio on port {port}...  (4-2 주소: {config.get_cm2_url()})")
     uvicorn.run("server:app", host="0.0.0.0", port=port, reload=False)

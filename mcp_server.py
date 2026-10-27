@@ -6,6 +6,7 @@ from pathlib import Path
 # Add current dir to path
 sys.path.insert(0, str(Path(__file__).parent))
 
+import config
 from blender_bridge import bridge
 from blender_detector import get_blender_info
 
@@ -86,15 +87,15 @@ TOOLS = [
     },
     {
         "name": "send_to_contentsmaker2",
-        "description": "렌더링된 3D 클립(mp4)을 Contentsmaker-2(4-2)의 씬 카드로 직접 전송 주입합니다.",
+        "description": "렌더링된 3D 클립(mp4)을 Contentsmaker-2(4-2)의 씬 카드로 직접 전송 주입합니다. 슬롯이 'thumbnail' 이면 mp4 대신 썸네일 png 를 보냅니다.",
         "inputSchema": {
             "type": "object",
             "required": ["job_id", "plan_id", "slot"],
             "properties": {
                 "job_id": { "type": "string", "description": "렌더링 클립 ID (예: shot_1712345678)" },
                 "plan_id": { "type": "string", "description": "Contentsmaker-2의 기획안 ID" },
-                "slot": { "type": "string", "description": "장착할 씬 슬롯 (예: scene_1, scene_2, thumbnail)" },
-                "cm2_url": { "type": "string", "default": "http://localhost:8002", "description": "Contentsmaker-2 서버 주소" }
+                "slot": { "type": "string", "description": "장착할 씬 슬롯. 4-2 는 씬 번호 문자열('1', '2', '3' …) 또는 'thumbnail' 만 받는다. 'scene_1' 같은 표기는 거절된다" },
+                "cm2_url": { "type": "string", "description": "Contentsmaker-2 서버 주소. 비우면 config.json / 환경변수 CM2_URL 의 값(기본 http://localhost:4005)을 쓴다" }
             }
         }
     }
@@ -144,8 +145,8 @@ def handle_rpc(request: dict) -> dict:
                 res = bridge.send_to_contentsmaker_2(
                     args.get("job_id"),
                     args.get("plan_id"),
-                    args.get("slot", "scene_1"),
-                    args.get("cm2_url", "http://localhost:8002")
+                    args.get("slot", "1"),
+                    args.get("cm2_url") or config.get_cm2_url()
                 )
             else:
                 return {

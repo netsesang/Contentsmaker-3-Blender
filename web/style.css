@@ -650,3 +650,17 @@ input[type="range"] {
 .hidden {
   display: none !important;
 }
+
+
+/* 보관 한도 알림 (알리기만 한다 — 자동 삭제 없음) */
+.storage-warn {
+  margin: 0 0 16px 0;
+  padding: 14px 18px;
+  border: 1px solid #c88a00;
+  border-left: 6px solid #ffb400;
+  border-radius: 10px;
+  background: rgba(255, 180, 0, 0.12);
+  color: #ffd778;
+  font-size: 17px;
+  line-height: 1.5;
+}
