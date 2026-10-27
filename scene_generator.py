@@ -46,11 +46,12 @@ if engine_type == "CYCLES":
     except Exception as e:
         print(f"GPU Setup note: {{e}}")
 else:
-    # Blender 4.2+ uses BLENDER_EEVEE_NEXT, fallback to BLENDER_EEVEE
     for ee in ['BLENDER_EEVEE_NEXT', 'BLENDER_EEVEE']:
-        if ee in bpy.types.RenderEngine.bl_rna.properties['engine'].enum_items:
+        try:
             scene.render.engine = ee
             break
+        except Exception:
+            pass
 
 # Format & Resolution
 aspect_ratio = PARAMS.get("aspect_ratio", "16:9")
@@ -310,10 +311,28 @@ scene.render.ffmpeg.format = 'MPEG4'
 scene.render.ffmpeg.codec = 'H264'
 scene.render.ffmpeg.constant_rate_factor = 'HIGH'
 scene.render.ffmpeg.ffmpeg_preset = 'GOOD'
-scene.render.filepath = OUTPUT_MP4
+
+base_video_path = OUTPUT_MP4.rsplit('.', 1)[0]
+scene.render.filepath = base_video_path + "_"
 
 # Execute Animation Render
 bpy.ops.render.render(animation=True)
+
+# Locate and rename the generated video to exact OUTPUT_MP4
+import glob
+matches = glob.glob(base_video_path + "_*.mp4")
+if matches:
+    latest = max(matches, key=os.path.getmtime)
+    if os.path.exists(OUTPUT_MP4):
+        try:
+            os.remove(OUTPUT_MP4)
+        except Exception:
+            pass
+    try:
+        os.rename(latest, OUTPUT_MP4)
+    except Exception as e:
+        print(f"Rename note: {{e}}")
+
 print(f"VIDEO_DONE: {{OUTPUT_MP4}}")
 '''
     return script
