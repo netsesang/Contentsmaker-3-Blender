@@ -129,96 +129,162 @@ def create_pbr_material(name, color=(0.8, 0.8, 0.8, 1.0), metallic=0.0, roughnes
                 bsdf.inputs['Emission Color'].default_value = emission_color
     return mat
 
+# Base & PBR Materials
 mat_ground = create_pbr_material("Mat_WetAsphalt", color=(0.04, 0.05, 0.07, 1.0), metallic=0.3, roughness=0.18, specular=0.9)
 mat_dark_steel = create_pbr_material("Mat_DarkSteel", color=(0.12, 0.13, 0.16, 1.0), metallic=0.85, roughness=0.25)
 mat_facade_panel = create_pbr_material("Mat_FacadePanel", color=(0.18, 0.20, 0.24, 1.0), metallic=0.4, roughness=0.4)
 mat_glass = create_pbr_material("Mat_ReflectiveGlass", color=(0.08, 0.12, 0.18, 1.0), metallic=0.1, roughness=0.04, ior=1.52, transmission=0.85)
-mat_warm_interior = create_pbr_material("Mat_WarmInterior", color=(1.0, 0.88, 0.65, 1.0), emission=4.5, emission_color=(1.0, 0.85, 0.55, 1.0))
-mat_neon_cyan = create_pbr_material("Mat_NeonCyan", color=(0.0, 0.85, 1.0, 1.0), emission=7.0, emission_color=(0.0, 0.9, 1.0, 1.0))
-mat_neon_gold = create_pbr_material("Mat_NeonGold", color=(1.0, 0.7, 0.2, 1.0), emission=6.0, emission_color=(1.0, 0.75, 0.2, 1.0))
 mat_char_suit = create_pbr_material("Mat_Suit", color=(0.08, 0.10, 0.14, 1.0), metallic=0.1, roughness=0.7)
 mat_char_skin = create_pbr_material("Mat_Skin", color=(0.85, 0.65, 0.52, 1.0), roughness=0.55)
 
-# 7. Ground Plane with Reflective Horizon
+# Materials for Specific Architectural Photo (Urban Checker Tower)
+mat_white_skin = create_pbr_material("Mat_WhiteSkin", color=(0.95, 0.95, 0.95, 1.0), roughness=0.28)
+mat_punched_hole = create_pbr_material("Mat_PunchedHole", color=(0.04, 0.05, 0.08, 1.0), metallic=0.2, roughness=0.15)
+mat_checker_dark = create_pbr_material("Mat_CheckerDark", color=(0.14, 0.16, 0.19, 1.0), metallic=0.3, roughness=0.35)
+mat_accent_yellow = create_pbr_material("Mat_AccentYellow", color=(0.94, 0.74, 0.22, 1.0), roughness=0.4)
+mat_accent_mint = create_pbr_material("Mat_AccentMint", color=(0.35, 0.78, 0.62, 1.0), roughness=0.4)
+mat_red_awning = create_pbr_material("Mat_RedAwning", color=(0.88, 0.12, 0.15, 1.0), roughness=0.5)
+mat_louver_fin = create_pbr_material("Mat_LouverFin", color=(0.20, 0.22, 0.26, 1.0), metallic=0.8, roughness=0.2)
+mat_tree_leaves = create_pbr_material("Mat_TreeLeaves", color=(0.08, 0.35, 0.12, 1.0), roughness=0.6)
+
+# 7. Ground Plane with Reflective Horizon & Sidewalk
 bpy.ops.mesh.primitive_plane_add(size=200, location=(0, 0, 0))
 ground = bpy.context.active_object
 ground.name = "Ground_WetAsphalt"
 ground.data.materials.append(mat_ground)
 
-# 8. High-Rise Tower Architecture
-building_style = PARAMS.get("building_style", "modern_tower")
+# Sidewalk (보도블럭)
+bpy.ops.mesh.primitive_cube_add(size=1.0, location=(0, -6.0, 0.1))
+sidewalk = bpy.context.active_object
+sidewalk.scale = (40.0, 8.0, 0.2)
+sidewalk.data.materials.append(mat_facade_panel)
+
+# 8. Landmark Architecture (Urban Checker & Punched-Hole Tower)
+building_style = PARAMS.get("building_style", "urban_checker_tower")
 floors = PARAMS.get("floors", 16)
-floor_height = 1.3
-building_width = PARAMS.get("building_width", 7.0)
-building_depth = PARAMS.get("building_depth", 7.0)
+floor_height = 1.35
+building_width = 8.8
+building_depth = 6.8
 roof_z = floors * floor_height
 
 bldg_col = bpy.data.collections.new("HighRiseArchitecture")
 scene.collection.children.link(bldg_col)
 
-# Procedural floors with glass curtain-wall & structural pillars
+# --- Wing A: Left White Perforated Tower (원형 타공 스킨 타워) ---
+wing_a_w = 4.2
+wing_a_d = 6.8
+wing_a_x = -2.2
+
+# Main core slab
+bpy.ops.mesh.primitive_cube_add(size=1.0, location=(wing_a_x, 0, roof_z / 2.0))
+wing_a = bpy.context.active_object
+wing_a.scale = (wing_a_w, wing_a_d, roof_z)
+wing_a.data.materials.append(mat_white_skin)
+bldg_col.objects.link(wing_a)
+scene.collection.objects.unlink(wing_a)
+
+# Array of Punched Circular Recesses (크고 작은 원형 타공 패턴)
+import random
+random.seed(42)
 for f in range(floors):
-    z = (f + 0.5) * floor_height
-    taper = 1.0 - (f / floors) * 0.22 if building_style == "modern_tower" else 1.0
-    w = building_width * taper
-    d = building_depth * taper
+    fz = (f + 0.5) * floor_height
+    # Create 3-4 circular punched holes per floor on the front face
+    hole_counts = 4
+    for h in range(hole_counts):
+        hx = wing_a_x - (wing_a_w * 0.38) + (h / (hole_counts - 1)) * (wing_a_w * 0.76)
+        hy = -(wing_a_d / 2.0) - 0.02
+        radius = random.choice([0.16, 0.24, 0.32, 0.20])
+        bpy.ops.mesh.primitive_cylinder_add(radius=radius, depth=0.1, location=(hx, hy, fz + random.uniform(-0.15, 0.15)))
+        hole = bpy.context.active_object
+        hole.rotation_euler = (math.radians(90), 0, 0)
+        hole.data.materials.append(mat_punched_hole)
+        bldg_col.objects.link(hole)
+        scene.collection.objects.unlink(hole)
 
-    # Concrete / Steel Slab
-    bpy.ops.mesh.primitive_cube_add(size=1.0, location=(0, 0, z - (floor_height * 0.45)))
-    slab = bpy.context.active_object
-    slab.scale = (w * 1.04, d * 1.04, floor_height * 0.12)
-    slab.data.materials.append(mat_dark_steel)
-    bldg_col.objects.link(slab)
-    scene.collection.objects.unlink(slab)
+# --- Wing B: Right Checkerboard Mosaic Tower (바둑판 커튼월 타워) ---
+wing_b_w = 4.6
+wing_b_d = 6.4
+wing_b_x = 2.1
 
-    # Core Glass Room
-    bpy.ops.mesh.primitive_cube_add(size=1.0, location=(0, 0, z))
-    room = bpy.context.active_object
-    room.scale = (w, d, floor_height * 0.85)
-    room.data.materials.append(mat_glass)
-    bldg_col.objects.link(room)
-    scene.collection.objects.unlink(room)
+# Generate Checkerboard Grid Floor by Floor
+for f in range(floors):
+    fz = (f + 0.5) * floor_height
+    # 4 Columns per floor
+    cols = 4
+    col_w = wing_b_w / cols
+    for c in range(cols):
+        cx = (wing_b_x - wing_b_w / 2.0) + (c + 0.5) * col_w
+        cy = -(wing_b_d / 2.0)
 
-    # Interior Lighting (checkerboard cozy lights)
-    if (f % 2 == 0 or f % 3 == 0) and f > 1:
-        bpy.ops.mesh.primitive_cube_add(size=1.0, location=(0, 0, z))
-        interior = bpy.context.active_object
-        interior.scale = (w * 0.85, d * 0.85, floor_height * 0.3)
-        interior.data.materials.append(mat_warm_interior)
-        bldg_col.objects.link(interior)
-        scene.collection.objects.unlink(interior)
+        # Decide material pattern: Dark panel vs Mirror glass vs Color accent
+        mod_idx = (f + c * 2) % 6
+        if mod_idx in [0, 3]:
+            mat_choice = mat_glass
+        elif mod_idx in [1, 4]:
+            mat_choice = mat_checker_dark
+        elif mod_idx == 2:
+            mat_choice = mat_accent_yellow
+        else:
+            mat_choice = mat_accent_mint
 
-    # Vertical Structural Mullions (Curtain wall detail)
-    mullion_count = 6
-    for m in range(mullion_count):
-        mx = (m / (mullion_count - 1) - 0.5) * w * 0.98
-        bpy.ops.mesh.primitive_cube_add(size=1.0, location=(mx, (d / 2) * 1.01, z))
-        mul = bpy.context.active_object
-        mul.scale = (0.06, 0.06, floor_height * 0.88)
-        mul.data.materials.append(mat_facade_panel)
-        bldg_col.objects.link(mul)
-        scene.collection.objects.unlink(mul)
+        bpy.ops.mesh.primitive_cube_add(size=1.0, location=(cx, cy, fz))
+        panel = bpy.context.active_object
+        panel.scale = (col_w * 0.94, 0.12, floor_height * 0.92)
+        panel.data.materials.append(mat_choice)
+        bldg_col.objects.link(panel)
+        scene.collection.objects.unlink(panel)
 
-# Rooftop Terrace & Observation Deck
-bpy.ops.mesh.primitive_cylinder_add(radius=building_width * 0.42, depth=0.4, location=(0, 0, roof_z + 0.2))
-deck = bpy.context.active_object
-deck.data.materials.append(mat_dark_steel)
-bldg_col.objects.link(deck)
-scene.collection.objects.unlink(deck)
+# Main core mass behind Wing B
+bpy.ops.mesh.primitive_cube_add(size=1.0, location=(wing_b_x, 0.2, roof_z / 2.0))
+wing_b_core = bpy.context.active_object
+wing_b_core.scale = (wing_b_w, wing_b_d * 0.95, roof_z)
+wing_b_core.data.materials.append(mat_checker_dark)
+bldg_col.objects.link(wing_b_core)
+scene.collection.objects.unlink(wing_b_core)
 
-# Glass Balustrade (난간)
-bpy.ops.mesh.primitive_cylinder_add(radius=building_width * 0.40, depth=0.8, location=(0, 0, roof_z + 0.7))
-railing = bpy.context.active_object
-railing.data.materials.append(mat_glass)
-bldg_col.objects.link(railing)
-scene.collection.objects.unlink(railing)
+# --- Louver Side Fins on Right Edge (우측면 수평 루버) ---
+louver_x = wing_b_x + (wing_b_w / 2.0) + 0.05
+for f in range(int(floors * 1.8)):
+    lz = f * (floor_height / 1.8) + 0.5
+    bpy.ops.mesh.primitive_cube_add(size=1.0, location=(louver_x, 0.0, lz))
+    fin = bpy.context.active_object
+    fin.scale = (0.2, wing_b_d * 0.85, 0.04)
+    fin.data.materials.append(mat_louver_fin)
+    bldg_col.objects.link(fin)
+    scene.collection.objects.unlink(fin)
 
-# Rooftop Spire & Beacon
-bpy.ops.mesh.primitive_cone_add(radius1=0.25, depth=4.0, location=(0, 0, roof_z + 2.4))
-spire = bpy.context.active_object
-spire.data.materials.append(mat_neon_cyan)
-bldg_col.objects.link(spire)
-scene.collection.objects.unlink(spire)
+# --- Ground Floor: Red Awning Canopy & Commercial Storefront (1층 레드 어닝) ---
+bpy.ops.mesh.primitive_cube_add(size=1.0, location=(1.5, -3.8, 1.6))
+awning = bpy.context.active_object
+awning.scale = (2.6, 1.2, 0.35)
+awning.rotation_euler = (math.radians(15), 0, 0)
+awning.data.materials.append(mat_red_awning)
+bldg_col.objects.link(awning)
+scene.collection.objects.unlink(awning)
+
+# 1층 투명 블랙 로비 유리
+bpy.ops.mesh.primitive_cube_add(size=1.0, location=(0, -3.2, 1.2))
+lobby = bpy.context.active_object
+lobby.scale = (wing_a_w + wing_b_w, 0.2, 2.4)
+lobby.data.materials.append(mat_glass)
+bldg_col.objects.link(lobby)
+scene.collection.objects.unlink(lobby)
+
+# --- Street Trees (가로수 디테일) ---
+for tx in [-6.5, 6.5]:
+    # Trunk
+    bpy.ops.mesh.primitive_cylinder_add(radius=0.15, depth=3.0, location=(tx, -6.5, 1.5))
+    trunk = bpy.context.active_object
+    trunk.data.materials.append(mat_facade_panel)
+    bldg_col.objects.link(trunk)
+    scene.collection.objects.unlink(trunk)
+    # Foliage Canopy
+    bpy.ops.mesh.primitive_uv_sphere_add(radius=1.6, location=(tx, -6.5, 3.8))
+    foliage = bpy.context.active_object
+    foliage.scale = (1.2, 1.2, 1.8)
+    foliage.data.materials.append(mat_tree_leaves)
+    bldg_col.objects.link(foliage)
+    scene.collection.objects.unlink(foliage)
 
 # Surrounding City Skyline (Depth & Atmosphere)
 import random
