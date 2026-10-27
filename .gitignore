@@ -1,0 +1,39 @@
+# Git ignore for Contentsmaker-3-Blender
+# Large 3D binary files, renders, caches, and environment
+
+# Environments
+.venv/
+venv/
+env/
+__pycache__/
+*.pyc
+
+# Blender project & binary files
+*.blend
+*.blend1
+*.blend2
+*.bphys
+*.fbx
+*.obj
+*.gltf
+*.glb
+
+# Render outputs & temporary cache
+outputs/
+renders/
+temp/
+cache/
+*.mp4
+*.avi
+*.mov
+*.png
+*.jpg
+*.jpeg
+*.exr
+
+# Logs & OS metadata
+*.log
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

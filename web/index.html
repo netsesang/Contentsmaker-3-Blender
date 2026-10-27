@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contentsmaker-3-Blender Studio | 0원 3D 로컬 렌더러</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <div class="app-layout">
+    <!-- Top Header -->
+    <header class="studio-header">
+      <div class="brand">
+        <div class="logo-mark">3D</div>
+        <div class="brand-text">
+          <h1>Contentsmaker-3 <span class="tag-blender">Blender Studio</span></h1>
+          <p class="subtext">RTX GPU 기반 로컬 0원 3D 씬 영상 제작 스튜디오</p>
+        </div>
+      </div>
+      <div class="header-badges">
+        <div id="blenderStatusBadge" class="status-badge badge-checking">
+          <span class="status-dot"></span>
+          <span id="blenderStatusText">Blender 연결 확인 중...</span>
+        </div>
+        <div class="status-badge badge-cost">
+          <span class="cost-num">0원</span>
+          <span class="cost-desc">로컬 렌더 (비용 $0)</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="studio-main">
+      <!-- Left Panel: Scene Director -->
+      <section class="panel control-panel">
+        <div class="panel-header">
+          <h2>🎬 3D 씬 디렉터</h2>
+          <span class="subtitle">건물 구조, 조명 연출, 카메라 샷 설정</span>
+        </div>
+
+        <form id="renderForm" class="director-form">
+          <!-- Building Configuration -->
+          <div class="form-group-card">
+            <label class="group-title">🏢 3D 건물 스타일</label>
+            <div class="chip-selector" id="buildingStyleSelect">
+              <label class="chip active">
+                <input type="radio" name="building_style" value="modern_tower" checked>
+                <span class="chip-label">모던 글래스 타워</span>
+              </label>
+              <label class="chip">
+                <input type="radio" name="building_style" value="cyberpunk_block">
+                <span class="chip-label">사이버펑크 블록</span>
+              </label>
+              <label class="chip">
+                <input type="radio" name="building_style" value="minimal_pavilion">
+                <span class="chip-label">미니멀 파빌리온</span>
+              </label>
+            </div>
+
+            <div class="slider-row">
+              <div class="slider-label">
+                <span>건물 층수</span>
+                <span id="floorsVal" class="slider-val">12층</span>
+              </div>
+              <input type="range" id="floorsInput" name="floors" min="4" max="30" value="12" step="1">
+            </div>
+          </div>
+
+          <!-- Lighting Preset -->
+          <div class="form-group-card">
+            <label class="group-title">💡 조명 분위기 연출</label>
+            <div class="preset-grid" id="lightingGrid">
+              <div class="preset-card active" data-val="cinematic_sunset">
+                <div class="preset-icon">🌇</div>
+                <div class="preset-info">
+                  <strong>시네마틱 선셋</strong>
+                  <span>황금빛 석양 & 블루 림라이트</span>
+                </div>
+              </div>
+              <div class="preset-card" data-val="cyberpunk_neon">
+                <div class="preset-icon">🌌</div>
+                <div class="preset-info">
+                  <strong>사이버펑크 네온</strong>
+                  <span>사이안 & 마젠타 발광</span>
+                </div>
+              </div>
+              <div class="preset-card" data-val="studio_clean">
+                <div class="preset-icon">☀️</div>
+                <div class="preset-info">
+                  <strong>클린 스튜디오</strong>
+                  <span>선명하고 정돈된 조명</span>
+                </div>
+              </div>
+            </div>
+            <input type="hidden" name="lighting" id="lightingInput" value="cinematic_sunset">
+          </div>
+
+          <!-- Camera Work -->
+          <div class="form-group-card">
+            <label class="group-title">🎥 시네마틱 카메라 무빙</label>
+            <div class="preset-grid" id="cameraGrid">
+              <div class="preset-card active" data-val="orbit_360">
+                <div class="preset-icon">🔄</div>
+                <div class="preset-info">
+                  <strong>360° 오빗 턴</strong>
+                  <span>건물 주변을 회전하는 역동적 샷</span>
+                </div>
+              </div>
+              <div class="preset-card" data-val="tilt_up">
+                <div class="preset-icon">⬆️</div>
+                <div class="preset-info">
+                  <strong>버티컬 틸트업</strong>
+                  <span>지상에서 옥상으로 상승 (쇼츠 추천)</span>
+                </div>
+              </div>
+              <div class="preset-card" data-val="push_in">
+                <div class="preset-icon">🔍</div>
+                <div class="preset-info">
+                  <strong>시네마틱 줌인</strong>
+                  <span>옥상 3D 캐릭터에게 포커스</span>
+                </div>
+              </div>
+            </div>
+            <input type="hidden" name="camera_shot" id="cameraInput" value="orbit_360">
+          </div>
+
+          <!-- Format & Engine -->
+          <div class="form-row-2">
+            <div class="form-group-card half">
+              <label class="group-title">📐 화면비</label>
+              <select name="aspect_ratio" id="aspectRatioSelect" class="styled-select">
+                <option value="16:9" selected>16:9 (유튜브 롱폼)</option>
+                <option value="9:16">9:16 (유튜브 쇼츠 / 릴스)</option>
+              </select>
+            </div>
+            <div class="form-group-card half">
+              <label class="group-title">⏱️ 영상 길이</label>
+              <select name="duration" id="durationSelect" class="styled-select">
+                <option value="3.0">3초 (빠른 클립)</option>
+                <option value="4.0" selected>4초 (표준 씬)</option>
+                <option value="6.0">6초 (시네마틱 씬)</option>
+                <option value="8.0">8초 (전체 감상)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Render Action -->
+          <button type="submit" id="btnRender" class="btn-primary-render">
+            <span class="btn-icon">⚡</span>
+            <span class="btn-text">3D 장면 로컬 렌더링 시작 (0원)</span>
+          </button>
+        </form>
+      </section>
+
+      <!-- Right Panel: Output Gallery & 4-2 Integration -->
+      <section class="panel gallery-panel">
+        <div class="panel-header">
+          <div class="header-left">
+            <h2>🎞️ 생성된 클립 & 접점 연동</h2>
+            <span class="subtitle">4-2(Contentsmaker-2) 씬 카드로 드래그 또는 직송</span>
+          </div>
+          <div class="header-actions">
+            <button id="btnOpenFolder" class="btn-secondary" title="파일 탐색기로 결과물 폴더 열기">
+              📁 폴더 열기
+            </button>
+            <button id="btnRefresh" class="btn-secondary" title="새로고침">
+              🔄 새로고침
+            </button>
+          </div>
+        </div>
+
+        <!-- Ongoing Render Status Banner -->
+        <div id="renderProgressBanner" class="progress-banner hidden">
+          <div class="spinner"></div>
+          <div class="progress-info">
+            <strong id="progressTitle">Blender 3D 로컬 렌더링 진행 중...</strong>
+            <p id="progressDetail">GPU 가속으로 3D 지오메트리 계산 및 프레임 렌더링 중입니다.</p>
+          </div>
+        </div>
+
+        <!-- Clips Grid -->
+        <div id="clipsGrid" class="clips-grid">
+          <!-- Rendered items will be injected here -->
+          <div class="empty-state" id="emptyState">
+            <div class="empty-icon">🏙️</div>
+            <h3>아직 렌더링된 3D 씬이 없습니다.</h3>
+            <p>좌측 패널에서 스타일을 설정하고 <strong>[로컬 렌더링 시작]</strong>을 누르세요.</p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Modal: Send Directly to Contentsmaker-2 -->
+    <div id="sendModal" class="modal-backdrop hidden">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h3>⚡ 4-2 (Contentsmaker-2) 씬 카드로 바로 전송</h3>
+          <button id="btnCloseModal" class="btn-close">×</button>
+        </div>
+        <div class="modal-body">
+          <p class="modal-desc">
+            현재 4-2 프로젝트가 <code>http://localhost:8002</code>에서 켜져 있다면,
+            아래 기획안 ID와 씬 번호를 지정하여 즉시 3D 클립을 장착할 수 있습니다.
+          </p>
+          <div class="form-group">
+            <label>기획안 ID (Plan ID)</label>
+            <input type="text" id="modalPlanId" class="styled-input" placeholder="예: plan_1712345678 또는 주제 키워드">
+          </div>
+          <div class="form-group">
+            <label>장착할 슬롯 (Scene Slot)</label>
+            <select id="modalSlotSelect" class="styled-select">
+              <option value="scene_1">씬 1 (Scene 1)</option>
+              <option value="scene_2">씬 2 (Scene 2)</option>
+              <option value="scene_3">씬 3 (Scene 3)</option>
+              <option value="scene_4">씬 4 (Scene 4)</option>
+              <option value="scene_5">씬 5 (Scene 5)</option>
+              <option value="thumbnail">썸네일 (Thumbnail)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>4-2 서버 주소</label>
+            <input type="text" id="modalCm2Url" class="styled-input" value="http://localhost:8002">
+          </div>
+          <input type="hidden" id="modalJobId">
+        </div>
+        <div class="modal-footer">
+          <button id="btnCancelSend" class="btn-secondary">취소</button>
+          <button id="btnConfirmSend" class="btn-accent">🚀 지금 4-2로 주입하기</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
