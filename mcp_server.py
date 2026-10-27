@@ -59,9 +59,19 @@ TOOLS = [
                 },
                 "engine": {
                     "type": "string",
-                    "enum": ["EEVEE", "CYCLES"],
-                    "default": "EEVEE",
-                    "description": "렌더 엔진 (EEVEE: 수 초 내 초고속 렌더, CYCLES: 실사 레이트레이싱)"
+                    "enum": ["CYCLES", "EEVEE"],
+                    "default": "CYCLES",
+                    "description": "렌더 엔진 (CYCLES: 영화 CG급 OptiX 레이트레이싱, EEVEE: 고속 프리뷰)"
+                },
+                "volumetric": {
+                    "type": "boolean",
+                    "default": True,
+                    "description": "대기 볼류메트릭 안개 및 빛내림(God Rays) 활성화 여부"
+                },
+                "fstop": {
+                    "type": "number",
+                    "default": 1.8,
+                    "description": "카메라 조리개값 (1.8: 영화 렌즈 보케 아웃포커싱, 8.0: 전체 선명)"
                 }
             }
         }

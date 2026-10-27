@@ -24,12 +24,15 @@ app.add_middleware(
 
 class RenderRequest(BaseModel):
     building_style: str = Field(default="modern_tower", description="modern_tower, cyberpunk_block, minimal_pavilion")
-    floors: int = Field(default=12, ge=3, le=40)
+    floors: int = Field(default=16, ge=3, le=40)
     lighting: str = Field(default="cinematic_sunset", description="cinematic_sunset, cyberpunk_neon, studio_clean")
     camera_shot: str = Field(default="orbit_360", description="orbit_360, tilt_up, push_in, pan_lateral")
     aspect_ratio: str = Field(default="16:9", description="16:9 or 9:16")
     duration: float = Field(default=4.0, ge=1.0, le=30.0)
-    engine: str = Field(default="EEVEE", description="EEVEE or CYCLES")
+    engine: str = Field(default="CYCLES", description="CYCLES (Raytracing) or EEVEE")
+    volumetric: bool = Field(default=True, description="Enable volumetric fog and light rays")
+    fstop: float = Field(default=1.8, ge=0.5, le=22.0, description="Camera aperture for bokeh")
+    samples: int = Field(default=96, ge=16, le=512, description="Cycles render samples")
     fps: int = Field(default=30, ge=15, le=60)
 
 class ConfigRequest(BaseModel):

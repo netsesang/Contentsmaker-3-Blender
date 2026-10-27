@@ -59,6 +59,14 @@ function initPresets() {
     });
   });
 
+  // Engine Chip Selector
+  document.querySelectorAll('#engineSelect .chip').forEach((chip) => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('#engineSelect .chip').forEach((c) => c.classList.remove('active'));
+      chip.classList.add('active');
+    });
+  });
+
   // Floor Slider
   $('floorsInput').addEventListener('input', (e) => {
     $('floorsVal').textContent = `${e.target.value}층`;
@@ -74,6 +82,10 @@ function initRenderForm() {
     btn.innerHTML = '<span class="spinner"></span> 렌더링 큐 전송 중...';
 
     const formData = new FormData(e.target);
+    const selectedEngine = formData.get('engine') || 'CYCLES';
+    const isVolumetric = $('volumetricCheck') ? $('volumetricCheck').checked : true;
+    const isDof = $('dofCheck') ? $('dofCheck').checked : true;
+
     const payload = {
       building_style: formData.get('building_style'),
       floors: parseInt(formData.get('floors'), 10),
@@ -81,15 +93,18 @@ function initRenderForm() {
       camera_shot: $('cameraInput').value,
       aspect_ratio: formData.get('aspect_ratio'),
       duration: parseFloat(formData.get('duration')),
-      engine: 'EEVEE',
+      engine: selectedEngine,
+      volumetric: isVolumetric,
+      fstop: isDof ? 1.8 : 8.0,
+      samples: selectedEngine === 'CYCLES' ? 96 : 48,
       fps: 30
     };
 
     try {
       const res = await api('/api/render', 'POST', payload);
       $('renderProgressBanner').classList.remove('hidden');
-      $('progressTitle').textContent = `3D 로컬 렌더링 시작 (${res.job_id})`;
-      $('progressDetail').textContent = 'Blender 백그라운드 엔진 가동 중... 잠시만 기다려주세요.';
+      $('progressTitle').textContent = `시네마틱 3D 로컬 렌더링 시작 (${res.job_id})`;
+      $('progressDetail').textContent = `Blender ${selectedEngine} (OptiX 가속) 엔진 가동 중... 잠시만 기다려주세요.`;
       startPolling();
     } catch (err) {
       alert(`렌더링 시작 오류: ${err.message}`);

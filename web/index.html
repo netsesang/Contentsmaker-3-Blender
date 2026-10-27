@@ -127,7 +127,32 @@
             <input type="hidden" name="camera_shot" id="cameraInput" value="orbit_360">
           </div>
 
-          <!-- Format & Engine -->
+          <!-- Cinematic Engine & Quality -->
+          <div class="form-group-card">
+            <label class="group-title">🌟 렌더링 퀄리티 엔진 (RTX 3060)</label>
+            <div class="chip-selector" id="engineSelect">
+              <label class="chip active">
+                <input type="radio" name="engine" value="CYCLES" checked>
+                <span class="chip-label">🎬 Cycles OptiX (영화 CG급 레이트레이싱)</span>
+              </label>
+              <label class="chip">
+                <input type="radio" name="engine" value="EEVEE">
+                <span class="chip-label">⚡ EEVEE Next (고속 프리뷰)</span>
+              </label>
+            </div>
+            <div style="margin-top: 0.8rem; display: flex; gap: 1rem; flex-wrap: wrap;">
+              <label style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; color: var(--text-secondary); cursor: pointer;">
+                <input type="checkbox" id="volumetricCheck" name="volumetric" checked style="accent-color: var(--accent-cyan);">
+                <span>대기 볼류메트릭 & 빛내림 (God Rays)</span>
+              </label>
+              <label style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; color: var(--text-secondary); cursor: pointer;">
+                <input type="checkbox" id="dofCheck" checked style="accent-color: var(--accent-cyan);">
+                <span>영화 렌즈 아웃포커싱 (F1.8 보케)</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Format & Duration -->
           <div class="form-row-2">
             <div class="form-group-card half">
               <label class="group-title">📐 화면비</label>
@@ -149,8 +174,8 @@
 
           <!-- Render Action -->
           <button type="submit" id="btnRender" class="btn-primary-render">
-            <span class="btn-icon">⚡</span>
-            <span class="btn-text">3D 장면 로컬 렌더링 시작 (0원)</span>
+            <span class="btn-icon">🎬</span>
+            <span class="btn-text">시네마틱 3D 로컬 렌더링 시작 (0원)</span>
           </button>
         </form>
       </section>
