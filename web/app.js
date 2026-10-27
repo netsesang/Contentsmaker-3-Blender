@@ -36,10 +36,8 @@ async function checkStatus() {
     } else {
       badge.className = 'status-badge badge-disconnected';
       text.textContent = 'Blender를 찾을 수 없습니다 — 경로 지정 필요';
-      const paths = (bl.searched_paths || []).join('
-');
-      badge.title = paths ? `찾아본 자리:
-${paths}` : '';
+      const paths = (bl.searched_paths || []).join('\n');
+      badge.title = paths ? `찾아본 자리:\n${paths}` : '';
     }
     if (data.cm2_url) $('modalCm2Url').value = data.cm2_url;
     showStorageWarning((data.storage || {}).warning);
